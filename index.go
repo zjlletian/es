@@ -79,9 +79,13 @@ func newIndex(indexName string, typ interface{}, client *EsClient) *Index {
 			sc.Include(fields...)
 		}
 	}
+	indexNames := []string{}
+	for _, n := range strings.Split(indexName, ",") {
+		indexNames = append(indexNames, strings.Trim(n, " "))
+	}
 	// 返回index
 	return &Index{
-		indexName:  strings.Split(indexName, ","),
+		indexName:  indexNames,
 		client:     client,
 		structType: t,
 		docType:    "_doc",

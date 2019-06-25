@@ -17,8 +17,12 @@ type EsClient struct {
 
 // 创建es客户端
 func NewEsClient(host string) (client *EsClient, err error) {
+	hosts := []string{}
+	for _, h := range strings.Split(host, ",") {
+		hosts = append(hosts, strings.Trim(h, " "))
+	}
 	rawClient, err := elastic.NewClient(
-		elastic.SetURL(strings.Split(host, ",")...),
+		elastic.SetURL(hosts...),
 		elastic.SetSniff(false),
 		elastic.SetHealthcheckInterval(10*time.Second),
 		elastic.SetGzip(true),

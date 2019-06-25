@@ -1,6 +1,6 @@
 # es sdk
 
-基于 gopkg.in/olivere/elastic.v6 ，在此之上封装了一些快捷功能。
+基于 gopkg.in/olivere/elastic.v6 ，在此之上封装了一些类似orm的功能。
 
 ## 1. 创建客户端
 
@@ -11,7 +11,7 @@ import "github.com/zjlletian/es"
 
 如果有多个节点使用`,`分隔
 ```go
-host := "http://node-1:9200,http://node-2:9200"
+host := "http://node-1:9200, http://node-2:9200"
 esClient, err := es.NewEsClient(host)
 if err != nil {
     handel error ....
@@ -81,7 +81,8 @@ type Order struct {
 	PayTime   string  `json:"pay_time"`
 	Subject   string  `json:"subject"`
 	Count     int64   `json:"count"`
-	OrderId   string  `json:"order_id"`
+  OrderId   string  `json:"order_id"`
+  
 	EsId      string  `es:"_id" json:"-"`
 	EsIndex   string  `es:"_index" json:"-"`
 	EsType    string  `es:"_type" json:"-"`
@@ -93,17 +94,17 @@ type Order struct {
 orderIndex := esClient.Index("pay_order", Order{}) 
 ```
 
-如果指定要查询多个index, 可以用逗号分隔或 *匹配, 但是要注意：多index查询只对index.Query()方法返回的结果生效, 如果用于直接操作文档则只对index列表中的第一个index生效。
+如果查询覆盖多个index, 可以用`,`分隔或`*`匹配, 但是要注意多index查询只对index.Query()返回的结果有效, 如果用于直接操作文档则只对index列表中的第一个index有效。
 ```go
-orderIndex := esClient.Index("pay_order1,pay_order2", Order{}) 
+orderIndex := esClient.Index("pay_order_1, pay_order_2", Order{}) 
 ```
 
 ## 3. 文档操作
+文档的增删改查基本操作, 如果index定义了多个index, 则只对index列表中的第一个index生效。
 
-#### 3.1 关于type
-es6 开始逐步移除type, 为了兼容es6.xx 和以后版本, sdk中type默认为_doc, 如果自定义成其他的type可能在以后版本中有兼容性问题。
+#### 3.1 设置文档type
+es6 开始逐步移除type, 为了兼容es6.xx 和以后版本, 本sdk中type默认为_doc, 且约定一个index只包含一个type。如果要使用其他type, 可使用SetDocType自定义, 但可能在以后版本中有兼容性问题。
 ```go
-// 使用 SetDocType 方法定义为其他type
 orderIndex.SetDocType("xxx")
 ```
 
@@ -122,7 +123,7 @@ orderIndex.Save(newOrder.OrderId, newOrder)
 
 #### 3.3 获取文档
 ```go
-res, err := orderIndex.Find("1")
+res, err := orderIndex.Find("some_order_id")
 fmt.Println(res, err)
 
 order := res.(Order)
@@ -133,14 +134,14 @@ fmt.Println(order.PayTime)
 
 #### 3.4 更新文档
 ```go
-err = orderIndex.Update("1", map[string]interface{}{
+err = orderIndex.Update("some_order_id", map[string]interface{}{
     "count":  365,
 })
 ```
 
 #### 3.5 删除文档
 ```go
-orderIndex.Delete("1")
+orderIndex.Delete("some_order_id")
 ```
 
 ## 4. 数据查询
@@ -215,14 +216,11 @@ POST http://xxxxxx:xxx/pay_order/_search
 ```
 
 #### 4.2 根据scroll查询结果
-如果需要查询的结果数量很多，如导入导出操作，推荐使用scroll来提升性能。
-ps: scroll 查询会忽略 query.Page() 指定的页码和页面大小，请指定ScrollSize。
-```go
-/*
-  ScrollSize(scrollSize int), 设置每次获取的batch数量，默认为1000
-  ScrollAlive(alive string), 设置scroll生存时间, 默认5分钟. 每次请求会重新刷新
-*/
+如果需要查询的结果数量很多，如导入导出操作，推荐使用scroll来提升性能。scroll 查询会忽略 query.Page() 指定的页码和页面大小，请指定ScrollSize。
+* ScrollSize(scrollSize int), 设置每次获取的batch数量，默认为1000
+* ScrollAlive(alive string), 设置scroll生存时间, 默认5分钟. 每次请求会重新刷新
 
+```go
 scroll, err := query.ScrollSize(1000).ScrollAlive("1m").GetScroll()
 if err != nil {
     handrl error // 处理错误
