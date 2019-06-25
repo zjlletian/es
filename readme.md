@@ -1,13 +1,17 @@
-# es客户端
+# es sdk
 
 基于 gopkg.in/olivere/elastic.v6 ，在此之上封装了一些快捷功能。
 
 ## 1. 创建客户端
 
+引入es sdk
 ```
-import "minisdk/es"
+import "github.com/zjlletian/es"
+```
 
-host := "http://xxxxxxx:9200/"
+如果有多个节点使用`,`分隔
+```
+host := "http://node-1:9200,http://node-2:9200"
 esClient, err := es.NewEsClient(host)
 if err != nil {
     handel error ....
