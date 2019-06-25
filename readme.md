@@ -81,7 +81,7 @@ type Order struct {
 	PayTime   string  `json:"pay_time"`
 	Subject   string  `json:"subject"`
 	Count     int64   `json:"count"`
-  OrderId   string  `json:"order_id"`
+	OrderId   string  `json:"order_id"`
   
 	EsId      string  `es:"_id" json:"-"`
 	EsIndex   string  `es:"_index" json:"-"`
