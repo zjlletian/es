@@ -5,12 +5,12 @@
 ## 1. 创建客户端
 
 引入es sdk
-```
+```go
 import "github.com/zjlletian/es"
 ```
 
 如果有多个节点使用`,`分隔
-```
+```go
 host := "http://node-1:9200,http://node-2:9200"
 esClient, err := es.NewEsClient(host)
 if err != nil {
@@ -22,18 +22,18 @@ if err != nil {
 
 #### 2.1 判断index是否存在
 判断名字为 pay_order 的index 是否存在。
-```
+```go
 exist, err := esClient.IsIndexExist("pay_order")
 ```
 
 #### 2.2 创建index
 创建一个名为 pay_order 的index。
-```
+```go
 err := esClient.CreateIndex("pay_order") 
 ```
 
 创建index时可以指定mapping。
-```
+```go
 mapping := `{
   "settings":{
   "number_of_shards":1,
@@ -57,11 +57,11 @@ err := esClient.CreateIndex("pay_order", es.Mapping(mapping))
 
 #### 2.3 删除index
 删除一个index
-```
+```go
 err := esClient.DeleteIndex("pay_order") 
 ```
 如果删除多个index，用逗号隔开
-```
+```go
 err := esClient.DeleteIndex("pay_order_1, pay_order_2") 
 ```
 
@@ -73,7 +73,7 @@ err := esClient.DeleteIndex("pay_order_1, pay_order_2")
 * _version : 查询结果的版本, 对应字段类型必须为 int64, 如果es返回的_version为null, 值则为0
 * _score : 查询结果的分数, 对应字段类型必须为 float64, 如果es返回的_score为null, 值则为0
 
-```
+```go
 // 自定义pay_order的数据结构
 type Order struct {
 	Userid    int64   `json:"userid"`
@@ -94,7 +94,7 @@ orderIndex := esClient.Index("pay_order", Order{})
 ```
 
 如果指定要查询多个index, 可以用逗号分隔或 *匹配, 但是要注意：多index查询只对index.Query()方法返回的结果生效, 如果用于直接操作文档则只对index列表中的第一个index生效。
-```
+```go
 orderIndex := esClient.Index("pay_order1,pay_order2", Order{}) 
 ```
 
@@ -102,13 +102,13 @@ orderIndex := esClient.Index("pay_order1,pay_order2", Order{})
 
 #### 3.1 关于type
 es6 开始逐步移除type, 为了兼容es6.xx 和以后版本, sdk中type默认为_doc, 如果自定义成其他的type可能在以后版本中有兼容性问题。
-```
+```go
 // 使用 SetDocType 方法定义为其他type
 orderIndex.SetDocType("xxx")
 ```
 
 #### 3.2 插入文档
-```
+```go
 newOrder := Order{
     Userid:  1231231,
     Status:  "finish",
@@ -121,7 +121,7 @@ orderIndex.Save(newOrder.OrderId, newOrder)
 ```
 
 #### 3.3 获取文档
-```
+```go
 res, err := orderIndex.Find("1")
 fmt.Println(res, err)
 
@@ -132,21 +132,21 @@ fmt.Println(order.PayTime)
 ```
 
 #### 3.4 更新文档
-```
+```go
 err = orderIndex.Update("1", map[string]interface{}{
     "count":  365,
 })
 ```
 
 #### 3.5 删除文档
-```
+```go
 orderIndex.Delete("1")
 ```
 
 ## 4. 数据查询
 #### 4.1 分页查询
 根据分页查询结果，默认的分页从1开始，每页100项, 返回对应页的数据和所有数据的总数。
-```
+```go
 query := orderIndex.Query().
     Term("userid", 238766003).   // userid = 238766003
     Term("status", "finish").    // status = finish
@@ -174,7 +174,7 @@ if res, total, err:= query.GetList(); err!= nil {
 
 Search()方法可以获取原生的 *elastic.SearchResult, 以获取其他详细结果，如高亮，分数。
 ps: 指定 size 和 from，会忽略 query.Page() 指定的页码和页面大小。
-```
+```go
 // Search(size int, from int)
 r, err := query.Search(10, 0)
 ```
@@ -217,7 +217,7 @@ POST http://xxxxxx:xxx/pay_order/_search
 #### 4.2 根据scroll查询结果
 如果需要查询的结果数量很多，如导入导出操作，推荐使用scroll来提升性能。
 ps: scroll 查询会忽略 query.Page() 指定的页码和页面大小，请指定ScrollSize。
-```
+```go
 /*
   ScrollSize(scrollSize int), 设置每次获取的batch数量，默认为1000
   ScrollAlive(alive string), 设置scroll生存时间, 默认5分钟. 每次请求会重新刷新
