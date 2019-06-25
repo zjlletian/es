@@ -74,7 +74,7 @@ err := esClient.DeleteIndex("vas_pay_order_1, vas_pay_order_2")
 * _score : 查询结果的分数, 对应字段类型必须为 float64, 如果es返回的_score为null, 值则为0
 
 ```
-// 自定义vas_pay_order的数据结构
+// 自定义pay_order的数据结构
 type Order struct {
 	Userid    int64   `json:"userid"`
 	Status    string  `json:"status"`
@@ -95,7 +95,7 @@ orderIndex := esClient.Index("vas_pay_order", Order{})
 
 如果指定要查询多个index, 可以用逗号分隔或 *匹配, 但是要注意：多index查询只对index.Query()方法返回的结果生效, 如果用于直接操作文档则只对index列表中的第一个index生效。
 ```
-orderIndex := esClient.Index("vas_pay_order_1,vas_pay_order_2", Order{}) 
+orderIndex := esClient.Index("pay_order1,pay_order2", Order{}) 
 ```
 
 ## 3. 文档操作
@@ -156,7 +156,7 @@ query := orderIndex.Query().
         es.Lte("2019-12-30T00:00:00+0800"), // pay_time <= "2019-12-30T00:00:00+0800"
     ).
     ShouldMatchPhrase("subject", "超级会员"). // 包含中文，所以需要 MatchPhrase
-    ShouldMatchPhrase("subject", "稻壳会员").
+    ShouldMatchPhrase("subject", "普通会员").
     MinimumShouldMatch(1).                  // should条件最小满足数量，默认1
     OrderBy("finish_time", -1).             // 根据 finish_time 降序排序
     Page(1, 10)                             // 分页，获取第一页，每页10项
@@ -182,7 +182,7 @@ r, err := query.Search(10, 0)
 
 以上查询转换成http请求格式如下
 ```
-POST http://xxxxxx:xxx/vas_pay_order/_search
+POST http://xxxxxx:xxx/pay_order/_search
 {
   "query": {
     "bool": {
@@ -198,7 +198,7 @@ POST http://xxxxxx:xxx/vas_pay_order/_search
       ],
       "should":[
         { "match_phrase": { "subject": "超级会员" }},
-        { "match_phrase": { "subject": "稻壳会员" }}
+        { "match_phrase": { "subject": "普通会员" }}
       ],
       "minimum_should_match":1
     }
