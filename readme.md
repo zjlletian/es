@@ -21,15 +21,15 @@ if err != nil {
 ## 2. index相关
 
 #### 2.1 判断index是否存在
-判断名字为 vas_pay_order 的index 是否存在。
+判断名字为 pay_order 的index 是否存在。
 ```
-exist, err := esClient.IsIndexExist("vas_pay_order")
+exist, err := esClient.IsIndexExist("pay_order")
 ```
 
 #### 2.2 创建index
-创建一个名为 vas_pay_order 的index。
+创建一个名为 pay_order 的index。
 ```
-err := esClient.CreateIndex("vas_pay_order") 
+err := esClient.CreateIndex("pay_order") 
 ```
 
 创建index时可以指定mapping。
@@ -52,17 +52,17 @@ mapping := `{
     }
   }
 }`
-err := esClient.CreateIndex("vas_pay_order", es.Mapping(mapping))
+err := esClient.CreateIndex("pay_order", es.Mapping(mapping))
 ```
 
 #### 2.3 删除index
 删除一个index
 ```
-err := esClient.DeleteIndex("vas_pay_order") 
+err := esClient.DeleteIndex("pay_order") 
 ```
 如果删除多个index，用逗号隔开
 ```
-err := esClient.DeleteIndex("vas_pay_order_1, vas_pay_order_2") 
+err := esClient.DeleteIndex("pay_order_1, pay_order_2") 
 ```
 
 #### 2.4 获取index
@@ -90,7 +90,7 @@ type Order struct {
 }
 
 // 这里需要指定index名称和index对应的类型，如果类型不是struct或struct的指针, 将会panic
-orderIndex := esClient.Index("vas_pay_order", Order{}) 
+orderIndex := esClient.Index("pay_order", Order{}) 
 ```
 
 如果指定要查询多个index, 可以用逗号分隔或 *匹配, 但是要注意：多index查询只对index.Query()方法返回的结果生效, 如果用于直接操作文档则只对index列表中的第一个index生效。
@@ -173,7 +173,6 @@ if res, total, err:= query.GetList(); err!= nil {
 ```
 
 Search()方法可以获取原生的 *elastic.SearchResult, 以获取其他详细结果，如高亮，分数。
-
 ps: 指定 size 和 from，会忽略 query.Page() 指定的页码和页面大小。
 ```
 // Search(size int, from int)
@@ -217,8 +216,7 @@ POST http://xxxxxx:xxx/pay_order/_search
 
 #### 4.2 根据scroll查询结果
 如果需要查询的结果数量很多，如导入导出操作，推荐使用scroll来提升性能。
-
-ps: 指定了 ScrollSize，会忽略 query.Page() 指定的页码和页面大小。
+ps: scroll 查询会忽略 query.Page() 指定的页码和页面大小，请指定ScrollSize。
 ```
 /*
   ScrollSize(scrollSize int), 设置每次获取的batch数量，默认为1000
