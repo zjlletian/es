@@ -115,9 +115,15 @@ func (q *Query) MinimumShouldMatch(minShouldMatch int) *Query {
 	return q
 }
 
+//  -------------------------------------------- Filter -------------------------------------------
 // Term in Filter
 func (q *Query) Term(fieldName string, value interface{}) *Query {
 	return q.AddFilter(elastic.NewTermQuery(fieldName, value))
+}
+
+// Terms in Filter
+func (q *Query) Terms(fieldName string, values ...interface{}) *Query {
+	return q.AddFilter(elastic.NewTermsQuery(fieldName, values...))
 }
 
 // Match in Filter
@@ -139,9 +145,20 @@ func (q *Query) Range(fieldName string, rangeOptions ...RangeOption) *Query {
 	return q.AddFilter(r)
 }
 
+// Exist in Filter
+func (q *Query) Exist(fieldName string) *Query {
+	return q.AddFilter(elastic.NewExistsQuery(fieldName))
+}
+
+//  -------------------------------------------- Should -------------------------------------------
 // Term in Should
 func (q *Query) ShouldTerm(fieldName string, value interface{}) *Query {
 	return q.AddShould(elastic.NewTermQuery(fieldName, value))
+}
+
+// Terms in Should
+func (q *Query) ShouldTerms(fieldName string, values ...interface{}) *Query {
+	return q.AddShould(elastic.NewTermsQuery(fieldName, values...))
 }
 
 // Match in Should
@@ -163,9 +180,20 @@ func (q *Query) ShouldRange(fieldName string, rangeOptions ...RangeOption) *Quer
 	return q.AddShould(r)
 }
 
+// Exist in Should
+func (q *Query) ShouldExist(fieldName string) *Query {
+	return q.AddShould(elastic.NewExistsQuery(fieldName))
+}
+
+//  -------------------------------------------- Must -------------------------------------------
 // Term in Must
 func (q *Query) MustTerm(fieldName string, value interface{}) *Query {
 	return q.AddMust(elastic.NewTermQuery(fieldName, value))
+}
+
+// Term in Must
+func (q *Query) MustTerms(fieldName string, values ...interface{}) *Query {
+	return q.AddMust(elastic.NewTermsQuery(fieldName, values...))
 }
 
 // Match in Must
@@ -187,9 +215,20 @@ func (q *Query) MustRange(fieldName string, rangeOptions ...RangeOption) *Query 
 	return q.AddMust(r)
 }
 
+// Exist in Must
+func (q *Query) MustExist(fieldName string) *Query {
+	return q.AddMust(elastic.NewExistsQuery(fieldName))
+}
+
+//  -------------------------------------------- MustNot -------------------------------------------
 // Term in MustNot
 func (q *Query) MustNotTerm(fieldName string, value interface{}) *Query {
 	return q.AddMustNot(elastic.NewTermQuery(fieldName, value))
+}
+
+// Terms in MustNot
+func (q *Query) MustNotTerms(fieldName string, values ...interface{}) *Query {
+	return q.AddMustNot(elastic.NewTermsQuery(fieldName, values...))
 }
 
 // Match in MustNot
@@ -209,6 +248,11 @@ func (q *Query) MustNotRange(fieldName string, rangeOptions ...RangeOption) *Que
 		rangeOption(r)
 	}
 	return q.AddMustNot(r)
+}
+
+// Exist in Must
+func (q *Query) MustNotExist(fieldName string) *Query {
+	return q.AddMustNot(elastic.NewExistsQuery(fieldName))
 }
 
 // 依据字段将序排列。 sortType: 1 升序排列， -1 降序排列
