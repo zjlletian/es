@@ -256,7 +256,7 @@ func (q *Query) MustNotExist(fieldName string) *Query {
 }
 
 // 依据字段将序排列。 sortType: 1 升序排列， -1 降序排列
-func (q *Query) OrderBy(fieldName string, sortType int) *Query {
+func (q *Query) Sort(fieldName string, sortType int) *Query {
 	s := elastic.NewFieldSort(fieldName)
 	if sortType == -1 {
 		s.Desc()

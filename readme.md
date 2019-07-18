@@ -159,7 +159,7 @@ query := orderIndex.Query().
     ShouldMatchPhrase("subject", "超级会员"). // 包含中文，所以需要 MatchPhrase
     ShouldMatchPhrase("subject", "普通会员").
     MinimumShouldMatch(1).                  // should条件最小满足数量，默认1
-    OrderBy("finish_time", -1).             // 根据 finish_time 降序排序
+    Sort("finish_time", -1).                // 根据 finish_time 降序排序
     Page(1, 10)                             // 分页，获取第一页，每页10项
 
 // 获取分页数据
