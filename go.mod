@@ -8,3 +8,5 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	gopkg.in/olivere/elastic.v6 v6.2.19
 )
+
+go 1.13

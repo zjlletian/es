@@ -93,13 +93,13 @@ func (q *Query) AddFilter(elasticQuery elastic.Query) *Query {
 
 // 添加Must条件
 func (q *Query) AddMust(elasticQuery elastic.Query) *Query {
-	q.filter = append(q.must, elasticQuery)
+	q.must = append(q.must, elasticQuery)
 	return q
 }
 
 // 添加MustNot条件
 func (q *Query) AddMustNot(elasticQuery elastic.Query) *Query {
-	q.filter = append(q.mustNot, elasticQuery)
+	q.mustNot = append(q.mustNot, elasticQuery)
 	return q
 }
 
